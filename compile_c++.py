@@ -34,14 +34,15 @@ def main(file_path, exe, replace, show_data):
     if show_data:
         print('\n'.join(command[6::].split()))
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compila todos los archivos de una carpeta')
-
+    
     parser.add_argument('-p', '--path', help='Se ingresa la ruta absoluta de la carpeta')
     parser.add_argument('-n', '--name', help='Nombre del ejecutable')
     parser.add_argument('-r', '--replace', action='store_true', help='Remplaza el arhivo con el mismo nombre en caso de existir')
     parser.add_argument('-s', '--show', action='store_true', help='Muestra los archivos que fueron compilados')
-
+    
     args = parser.parse_args()
     
     if not args.path or not args.name:
