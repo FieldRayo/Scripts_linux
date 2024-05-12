@@ -13,14 +13,16 @@ def main(file_path, exe, replace, show_data):
         if x == 'S':
             replace = True
         else:
-            print(f'El archivo "{exe}" queda intacto')
-            exit()
+            return f'El archivo "{exe}" queda intacto'
+            return
 
-    if os.path.exist(exe) and replace:
+    if os.path.exists(exe) and replace:
         os.remove(exe)
 
-
     files = os.listdir(file_path)
+    
+    if not len(files) or sum(x.count('.cpp') for x in files) == 0:
+        return 'No se encontro ningun archivo'
 
     command = f'g++ -o {exe} '
 
@@ -32,7 +34,9 @@ def main(file_path, exe, replace, show_data):
 
     print('- Se han compilado correctamente todos los archivos -\n')
     if show_data:
-        print('\n'.join(command[6::].split()))
+        return '\n'.join(command[6::].split())
+
+    return ''
 
 
 if __name__ == '__main__':
@@ -49,4 +53,4 @@ if __name__ == '__main__':
         print('Hacen falta 1 o mas parametros. Consulta "compilecpp -h" para mas informacion')
         exit()
 
-    main(args.path, args.name, args.replace, args.show)
+    print(main(args.path, args.name, args.replace, args.show))
