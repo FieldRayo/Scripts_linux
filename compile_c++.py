@@ -21,7 +21,7 @@ def main(file_path, exe, replace, show_data):
 
     files = os.listdir(file_path)
     
-    if not len(files) or sum(x.count('.cpp') for x in files) == 0:
+    if sum(x.count('.cpp') for x in files) == 0:
         return 'No se encontro ningun archivo'
 
     command = f'g++ -o {exe} '
