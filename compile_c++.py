@@ -1,56 +1,51 @@
 #!/usr/bin/env python
 
-import sys, os, time
+import sys, os
 import argparse
 
 args = sys.argv
 
-def main(file_path, exe, replace, show_data):
-    cpp_exist = False
+def main(replace, show_data, file_path, exe, exclude, exlusive):
+    existing_file = os.path.exists(exe)
     
-    if os.path.exists(exe) and not replace:
-        x = input(f'--> El archivo "{exe}" ya existe, ¿quieres remplazarlo? (S/N)\n>>> ')
-        if x == 'S':
-            replace = True
-        else:
-            return f'El archivo "{exe}" queda intacto'
-            return
-
-    if os.path.exists(exe) and replace:
+    if existing_file and replace:
         os.remove(exe)
+    elif existing_file:
+        print(f'Archivo existente: El archivo "{exe}" ya existe en la carpeta "file_path", si desea remplazarlo pruebe con el argumento --replace')
+        return
 
     files = os.listdir(file_path)
-    
-    if sum(x.count('.cpp') for x in files) == 0:
-        return 'No se encontro ningun archivo'
 
     command = f'g++ -o {exe} '
 
     for f in files:
-        if (f.count('.cpp')):
-            command += file_path + '/' + f + ' '
+        if '.cpp' in f and f not in exclude:
+            command += os.path.abspath(file_path) + '/' + f + ' '
 
-    os.system(command)
+    output = os.system(command)
+    
+    if output: return
 
-    print('- Se han compilado correctamente todos los archivos -\n')
     if show_data:
-        return '\n'.join(command[6::].split())
-
-    return ''
-
+        print('\n'.join(command[6::].split()))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Compila todos los archivos de una carpeta')
     
-    parser.add_argument('-p', '--path', help='Se ingresa la ruta absoluta de la carpeta')
-    parser.add_argument('-n', '--name', help='Nombre del ejecutable')
     parser.add_argument('-r', '--replace', action='store_true', help='Remplaza el arhivo con el mismo nombre en caso de existir')
     parser.add_argument('-s', '--show', action='store_true', help='Muestra los archivos que fueron compilados')
     
-    args = parser.parse_args()
+    parser.add_argument('-e', '--exclude', nargs='+', help='Exluye los archivos que no van a ser compilados')
+    parser.add_argument('-E', '--exclusive', nargs='+', help='Elije los archivos que se van a compilar')
     
-    if not args.path or not args.name:
-        print('Hacen falta 1 o mas parametros. Consulta "compilecpp -h" para mas informacion')
-        exit()
+    parser.add_argument('path', nargs=1, help='Se ingresa la ruta absoluta de la carpeta')
+    parser.add_argument('name', nargs=1, help='Nombre del ejecutable')
+    
+    args = parser.parse_args()
 
-    print(main(args.path, args.name, args.replace, args.show))
+    if not args.exclude:
+        args.exclude = []
+    if not args.exclusive:
+        args.exclusive = []
+    
+    main(args.replace, args.show, *args.path, *args.name, args.exclude, args.exclusive)
